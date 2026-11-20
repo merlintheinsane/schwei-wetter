@@ -15,11 +15,14 @@ Wetterstation mit **Schweißampel** für Schutzgasschweißen im Freien: bewertet
 
 ## Nutzung
 
-Datei im Browser öffnen. Beim ersten Start den Ort (PLZ oder Name) in den Einstellungen wählen – er wird nur im Browser des jeweiligen Geräts gespeichert.
+Datei im Browser öffnen. Es ist **kein Ort voreingestellt**: Beim ersten Start wählst du den Ort (PLZ oder Name) in den Einstellungen – er wird nur im Browser des jeweiligen Geräts gespeichert.
 
 Ohne Internetverbindung (oder in eingeschränkten Vorschau-Umgebungen) startet automatisch ein Demo-Modus mit Beispieldaten.
 
 ## Datenschutz
+
+Die vollständigen Hinweise („Über dieses Projekt“ und „Datenschutz“) sind in der Seite selbst verlinkt (Desktop: ⓘ oben rechts, Handy: Fußzeile, außerdem in den Einstellungen).
+
 
 - Keine Anmeldung, kein Tracking, keine Cookies, kein eigener Server – die Seite ist rein statisch.
 - Einstellungen (Ort, Grenzwerte, ob das Intro gesehen wurde) bleiben im Browser des jeweiligen Geräts (`localStorage`) und werden nicht übertragen.
