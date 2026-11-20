@@ -19,12 +19,20 @@ Datei im Browser öffnen. Beim ersten Start den Ort (PLZ oder Name) in den Einst
 
 Ohne Internetverbindung (oder in eingeschränkten Vorschau-Umgebungen) startet automatisch ein Demo-Modus mit Beispieldaten.
 
+## Datenschutz
+
+- Keine Anmeldung, kein Tracking, keine Cookies, kein eigener Server – die Seite ist rein statisch.
+- Einstellungen (Ort, Grenzwerte, ob das Intro gesehen wurde) bleiben im Browser des jeweiligen Geräts (`localStorage`) und werden nicht übertragen.
+- Schriften (`fonts/`) und Kartenbibliothek (`lib/`) liegen im Repo, damit keine Anfragen an Google Fonts oder CDNs gehen.
+- Für die Anzeige fragt der Browser direkt bei den unten genannten Datenquellen an; diese sehen dabei die IP-Adresse des Besuchers. Ausgeliefert wird die Seite über GitHub Pages.
+
 ## Datenquellen
 
 - Wettermodelle: [Open-Meteo](https://open-meteo.com)
 - Regenradar: [Deutscher Wetterdienst](https://www.dwd.de) (WMS `dwd:Niederschlagsradar`)
 - Ortssuche: [Photon](https://photon.komoot.io) (OpenStreetMap)
-- Karte: [OpenFreeMap](https://openfreemap.org), © OpenMapTiles, © OpenStreetMap-Mitwirkende
+- Karte: [OpenFreeMap](https://openfreemap.org), © OpenMapTiles, © OpenStreetMap-Mitwirkende, dargestellt mit [MapLibre GL JS](https://maplibre.org) (BSD-3, siehe `lib/MAPLIBRE-LICENSE.txt`)
+- Schrift: Barlow / Barlow Condensed (SIL Open Font License, siehe `fonts/OFL-LICENSE.txt`)
 
 ## Geplant
 

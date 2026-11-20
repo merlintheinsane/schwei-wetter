@@ -4,9 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wetterstation · Schweißwetter</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Schriften liegen im Repo (fonts/) – keine Anfragen an Google */
+@font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/barlow-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/barlow-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/barlow-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/barlow-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/barlow-condensed-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/barlow-condensed-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:700;font-display:swap;src:url(fonts/barlow-condensed-latin-700-normal.woff2) format('woff2')}
+</style>
 <style>
 :root{
   --bg:#111316; --panel:#181b20; --panel2:#1e2228; --line:#262b33; --tx:#e9ebee; --mut:#8b939d; --dim:#5d646e;
@@ -174,6 +181,11 @@ input[type=range].sl::-webkit-slider-thumb{-webkit-appearance:none;width:28px;he
 input[type=range].sl::-moz-range-track{height:6px;border-radius:3px;background:#3a4049}
 input[type=range].sl::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--acc);border:0}
 .note{font-size:13.5px;color:var(--mut);line-height:1.45;margin-top:8px}
+.sheet.narrow{width:760px}
+.intro p{font-size:16px;line-height:1.5;margin:0 0 10px}
+.intro ul{margin:0 0 10px;padding-left:20px;font-size:15.5px;line-height:1.5}
+.intro li{margin-bottom:6px}
+.intro h4{margin:14px 0 4px;font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
 #loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--mut);z-index:40;background:var(--bg)}
 </style>
 </head>
@@ -619,6 +631,7 @@ function renderAmpel(){
 
 /* ---------- Detailansicht ---------- */
 function openDetail(di){
+  plainSheet();
   const e=EV[di];if(!e)return;const T=thr();
   const key=dayKey(e.day);const idx=[];D.times.forEach((t,i)=>{if(dayKey(t)===key)idx.push(i);});
   const stMap=new Map(e.hours.map(x=>[x.i,x]));
@@ -640,10 +653,12 @@ function openDetail(di){
   showOverlay();
 }
 function showOverlay(){$('#overlay').classList.remove('hidden');}
+function plainSheet(){$('#sheet').classList.remove('narrow');}
 function hideOverlay(){$('#overlay').classList.add('hidden');}
 
 /* ---------- Einstellungen ---------- */
 function openSettings(){
+  plainSheet();
   const t=S.thr;
   $('#sheet').innerHTML=`
     <div class="sheetHead"><h3>Einstellungen</h3><button class="xbtn" data-close>✕</button></div>
@@ -665,7 +680,7 @@ function openSettings(){
         <div class="row"><label style="min-width:220px">Mittelwind max.</label><input class="sl" type="range" id="sWind" min="4" max="30" value="${t.wind}"><b class="num" style="min-width:90px;text-align:right;font-size:20px" id="vWind">${t.wind} km/h</b></div>
         <div class="row"><label style="min-width:220px">Böen max.</label><input class="sl" type="range" id="sGust" min="8" max="50" value="${t.gust}"><b class="num" style="min-width:90px;text-align:right;font-size:20px" id="vGust">${t.gust} km/h</b></div>
         <div class="note">Faustregel: Ab ca. 8 km/h direkt an der Naht wird die Schutzgasabdeckung gestört. Die Vorhersagen gelten für 10 m Höhe – am Boden im Garten ist es meist ruhiger, deshalb liegen die Standardwerte etwas darüber. Mit deinen Erfahrungen nachjustieren.</div>
-        <div class="row" style="justify-content:flex-end;gap:10px;margin-top:6px"><button class="btn" id="sReset">Standardwerte</button><button class="btn pri" data-close>Fertig</button></div>
+        <div class="row" style="justify-content:flex-end;gap:10px;margin-top:6px"><button class="btn" id="sInfo" style="margin-right:auto">Info &amp; Datenschutz</button><button class="btn" id="sReset">Standardwerte</button><button class="btn pri" data-close>Fertig</button></div>
       </div>
     </div>`;
   const apply=()=>{saveSettings();renderAll();};
@@ -676,6 +691,7 @@ function openSettings(){
     S[k]=v;$('#vStart').textContent=pad(S.start)+':00';$('#vEnd').textContent=pad(S.end)+':00';apply();});
   $('#sWind').oninput=e=>{S.thr.wind=+e.target.value;$('#vWind').textContent=e.target.value+' km/h';apply();};
   $('#sGust').oninput=e=>{S.thr.gust=+e.target.value;$('#vGust').textContent=e.target.value+' km/h';apply();};
+  $('#sInfo').onclick=()=>openIntro();
   $('#sReset').onclick=()=>{S.thr=clone(DEF.thr);S.start=DEF.start;S.end=DEF.end;S.screen=false;apply();openSettings();};
   const go=async()=>{
     const q=$('#geoQ').value.trim();if(!q)return;const box=$('#geoRes');box.innerHTML='<div class="note">Suche …</div>';
@@ -697,6 +713,31 @@ function openSettings(){
     }catch(err){box.innerHTML='<div class="note">Ortssuche nicht erreichbar (keine Internetverbindung oder Vorschau-Umgebung).</div>';}
   };
   $('#geoGo').onclick=go;$('#geoQ').onkeydown=e=>{if(e.key==='Enter')go();};
+  showOverlay();
+}
+
+
+/* ---------- Intro & Datenschutz ---------- */
+function introSeen(){try{return localStorage.getItem('ws-intro')==='1';}catch(e){return false;}}
+function openIntro(after){
+  $('#sheet').classList.add('narrow');
+  $('#sheet').innerHTML=`
+    <div class="sheetHead"><h3>Schweißwetter – wofür ist das?</h3></div>
+    <div class="intro">
+      <p>Diese Seite hilft bei der Planung von <b>Schutzgasschweißen im Freien</b> (MIG/MAG, WIG). Wind bläst das Schutzgas von der Naht, Regen und Feuchtigkeit verderben das Ergebnis – und niemand fährt gern umsonst zur Baustelle.</p>
+      <ul>
+        <li><b>Schweißampel:</b> bewertet die nächsten 7 Tage für dein Arbeitsfenster. <span class="c-g">Grün</span> = ruhig und trocken, <span class="c-y">Gelb</span> = grenzwertig oder unsicher, <span class="c-r">Rot</span> = zu windig oder Regen.</li>
+        <li><b>Vier Wettermodelle</b> (DWD, ECMWF, USA, Frankreich) werden verglichen – je einiger sie sind, desto verlässlicher die Ampel.</li>
+        <li><b>Radar:</b> Regen der letzten 90 Minuten und Vorhersage für 2 Stunden.</li>
+        <li><b>Ort, Arbeitszeit, Grenzwerte</b> und Windschutz stellst du über das Zahnrad ein.</li>
+      </ul>
+      <p class="note">Die Ampel ist eine Orientierungshilfe, keine Garantie. Vor Ort selbst prüfen.</p>
+      <h4>Datenschutz</h4>
+      <p class="note">Keine Anmeldung, kein Tracking, keine Cookies, kein eigener Server. Deine Einstellungen (Ort, Grenzwerte) werden nur auf deinem Gerät im Browser gespeichert und nirgendwohin übertragen.
+      Um die Daten anzuzeigen, fragt dein Browser direkt bei diesen Diensten an – sie sehen dabei, wie bei jedem Webseitenaufruf, deine IP-Adresse: <b>Open-Meteo</b> (Wetter, mit den Koordinaten des gewählten Orts), <b>Deutscher Wetterdienst</b> (Radar), <b>OpenFreeMap</b> (Karte) und – nur bei der Ortssuche – <b>Photon/komoot</b>. Die Seite selbst wird über <b>GitHub Pages</b> ausgeliefert.</p>
+      <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn pri" id="introOk">Verstanden</button></div>
+    </div>`;
+  $('#introOk').onclick=()=>{try{localStorage.setItem('ws-intro','1');}catch(e){}hideOverlay();setTimeout(()=>{$('#sheet').classList.remove('narrow');if(after)after();},260);};
   showOverlay();
 }
 
@@ -746,12 +787,14 @@ function radarBuild(){
 }
 /* ---- Live-Karte: MapLibre (Vektorkarte, Beschriftung ohne Überlappung) + DWD-Radar ---- */
 let MAP=null,MK=null;
-const MAPLIB='https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/';
+const MAPLIBS=['lib/','https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/'];
 function loadMapLib(){
   if(window.maplibregl)return Promise.resolve();
-  return new Promise((res,rej)=>{
-    const l=document.createElement('link');l.rel='stylesheet';l.href=MAPLIB+'maplibre-gl.css';document.head.appendChild(l);
-    const sc=document.createElement('script');sc.src=MAPLIB+'maplibre-gl.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc);});
+  const tryLoad=base=>new Promise((res,rej)=>{
+    const sc=document.createElement('script');sc.src=base+'maplibre-gl.js';
+    sc.onload=()=>{const l=document.createElement('link');l.rel='stylesheet';l.href=base+'maplibre-gl.css';document.head.appendChild(l);res();};
+    sc.onerror=()=>{sc.remove();rej();};document.head.appendChild(sc);});
+  return tryLoad(MAPLIBS[0]).catch(()=>tryLoad(MAPLIBS[1]));
 }
 const DE={w:4.0,e:17.0,s:46.0,n:55.8}; // Abdeckung des DWD-Radarverbunds (großzügig)
 const merc=(lon,lat)=>[lon*20037508.342789/180,Math.log(Math.tan((90+lat)*Math.PI/360))*6378137];
@@ -1083,7 +1126,8 @@ async function refresh(rebuildRadar){
   await refresh(false);
   $('#loading').remove();
   if(location.hash==='#ampel')setPage(1);else if(location.hash==='#radar')setPage(2);
-  if(D.mode==='live'&&!S.loc.set)openSettings();
+  const needLoc=D.mode==='live'&&!S.loc.set;
+  if(!introSeen())openIntro(needLoc?openSettings:null);else if(needLoc)openSettings();
   setInterval(()=>{if(D&&D.mode==='live')refresh(false);else renderAll();},15*60e3);
   setInterval(()=>{if(D)renderOverview();},60e3);
   setInterval(()=>{if(D&&D.mode==='live'&&MAP)loadRadarFrames();},10*60e3);
