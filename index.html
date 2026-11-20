@@ -42,7 +42,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 #status i{width:8px;height:8px;border-radius:50%;background:var(--g);display:inline-block}
 #status.demo i{background:var(--y)}
 #topClock{font-size:26px;font-weight:600}
-#gear{width:48px;height:48px;border-radius:24px;display:grid;place-items:center;background:var(--panel2);box-shadow:inset 0 0 0 1px var(--line)}
+#gear,#infoBtn{width:48px;height:48px;border-radius:24px;display:grid;place-items:center;background:var(--panel2);box-shadow:inset 0 0 0 1px var(--line)}
+#infoBtn{background:transparent;box-shadow:none;margin-right:-8px}
+.linkbtn{color:var(--acc);text-decoration:underline;text-underline-offset:2px;font-size:inherit;padding:0}
+.legal ul{font-size:14.5px}.legal li{margin-bottom:8px}.legal a{color:var(--acc)}
+#loading .linkbtn{font-size:14px;color:var(--mut)}
 
 /* Seiten */
 #viewport{position:absolute;top:64px;left:0;right:0;bottom:0;overflow:hidden}
@@ -109,7 +113,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .kv div{display:flex;justify-content:space-between;color:var(--mut)}
 .kv div b{color:var(--tx);font-weight:600}
 .ac .warn{font-size:12.5px;color:var(--y);text-align:center;margin-top:6px}
-#ampFoot{font-size:13px;color:var(--dim);display:flex;justify-content:space-between}
+#ampFoot{font-size:13px;color:var(--dim);display:flex;justify-content:space-between;gap:16px}
+#ampFoot .linkbtn{color:var(--dim);font-size:13px}
 
 /* Radar */
 #p2{padding:0}
@@ -204,6 +209,9 @@ input[type=range].sl::-moz-range-thumb{width:28px;height:28px;border-radius:50%;
     <div id="topRight">
       <span id="status"><i></i><span id="statusTx">…</span></span>
       <span id="topClock" class="num">--:--</span>
+      <button id="infoBtn" data-privacy aria-label="Datenschutz und Hinweise" title="Datenschutz &amp; Hinweise">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e9ebee" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.5" r=".6" fill="#e9ebee"/></svg>
+      </button>
       <button id="gear" aria-label="Einstellungen">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#e9ebee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
       </button>
@@ -241,7 +249,7 @@ input[type=range].sl::-moz-range-thumb{width:28px;height:28px;border-radius:50%;
           <h2>Schweißampel <small id="ampSub"></small></h2>
         </div>
         <div id="ampCards"></div>
-        <div id="ampFoot"><span id="ampModels"></span><span>Antippen für Details</span></div>
+        <div id="ampFoot"><span id="ampModels"></span><span style="white-space:nowrap">Antippen für Details · <button class="linkbtn" data-privacy>Datenschutz</button></span></div>
       </section>
 
       <!-- Seite 3: Radar -->
@@ -292,12 +300,12 @@ const MON=['Januar','Februar','März','April','Mai','Juni','Juli','August','Sept
 const STATUS_TX={g:'Gut',y:'Grenzwertig',r:'Ungeeignet',x:'Vorbei'};
 
 /* ---------- Einstellungen ---------- */
-const DEF={loc:{name:'Kassel',lat:51.3155,lon:9.4924,set:false},screen:false,start:8,end:19,
+const DEF={loc:null,screen:false,start:8,end:19,
   thr:{wind:12,gust:25},zoom:8};
 let S=loadSettings();
 function loadSettings(){
   try{const s=JSON.parse(localStorage.getItem('ws-settings')||'null');
-    if(s){const d=clone(DEF);Object.assign(d,s);const ot=s.thr&&s.thr.MAG?s.thr.MAG:s.thr;d.thr=Object.assign(clone(DEF.thr),ot||{});d.loc=Object.assign(clone(DEF.loc),s.loc||{});delete d.proc;return d;}
+    if(s){const d=clone(DEF);Object.assign(d,s);const ot=s.thr&&s.thr.MAG?s.thr.MAG:s.thr;d.thr=Object.assign(clone(DEF.thr),ot||{});d.loc=(s.loc&&s.loc.set&&isFinite(s.loc.lat))?s.loc:null;delete d.proc;return d;}
   }catch(e){}
   return clone(DEF);
 }
@@ -554,7 +562,7 @@ function renderAll(){
   renderTop();renderOverview();renderAmpel();
 }
 function renderTop(){
-  $('#locName').innerHTML=D.mode==='demo'?'Demo-Ort <small>(Beispieldaten)</small>':`${esc(S.loc.name)}${S.loc.set?'':' <small>(Ort wählen)</small>'}`;
+  $('#locName').innerHTML=D.mode==='demo'?'Demo-Ort <small>(Beispieldaten)</small>':(S.loc?esc(S.loc.name):'Ort wählen');
   $('#status').className=D.mode==='demo'?'demo':'';
   $('#statusTx').textContent=D.mode==='demo'?'Demo-Daten':`Live · ${hm(D.updated)}`;
 }
@@ -667,7 +675,7 @@ function openSettings(){
         <h4>Ort</h4>
         <div class="row" style="gap:10px"><input type="text" id="geoQ" placeholder="PLZ oder Ort, z. B. 34117" value=""><button class="btn pri" id="geoGo">Suchen</button></div>
         <div id="geoRes"></div>
-        <div class="note">Aktuell: <b>${esc(S.loc.name)}</b> (${fmt(S.loc.lat,3)}, ${fmt(S.loc.lon,3)})${D&&D.mode==='demo'?'<br>In der Vorschau-Umgebung ist keine Ortssuche möglich, in der heruntergeladenen Datei schon.':''}</div>
+        <div class="note">${S.loc?`Aktuell: <b>${esc(S.loc.name)}</b> (${fmt(S.loc.lat,3)}, ${fmt(S.loc.lon,3)})`:'Noch kein Ort gewählt. Suche nach Postleitzahl oder Ortsname.'}${D&&D.mode==='demo'?'<br>In der Vorschau-Umgebung ist keine Ortssuche möglich, in der heruntergeladenen Datei schon.':''}</div>
       </div>
       <div class="setBox">
         <h4>Arbeitszeit &amp; Windschutz</h4>
@@ -680,7 +688,7 @@ function openSettings(){
         <div class="row"><label style="min-width:220px">Mittelwind max.</label><input class="sl" type="range" id="sWind" min="4" max="30" value="${t.wind}"><b class="num" style="min-width:90px;text-align:right;font-size:20px" id="vWind">${t.wind} km/h</b></div>
         <div class="row"><label style="min-width:220px">Böen max.</label><input class="sl" type="range" id="sGust" min="8" max="50" value="${t.gust}"><b class="num" style="min-width:90px;text-align:right;font-size:20px" id="vGust">${t.gust} km/h</b></div>
         <div class="note">Faustregel: Ab ca. 8 km/h direkt an der Naht wird die Schutzgasabdeckung gestört. Die Vorhersagen gelten für 10 m Höhe – am Boden im Garten ist es meist ruhiger, deshalb liegen die Standardwerte etwas darüber. Mit deinen Erfahrungen nachjustieren.</div>
-        <div class="row" style="justify-content:flex-end;gap:10px;margin-top:6px"><button class="btn" id="sInfo" style="margin-right:auto">Info &amp; Datenschutz</button><button class="btn" id="sReset">Standardwerte</button><button class="btn pri" data-close>Fertig</button></div>
+        <div class="row" style="justify-content:flex-end;gap:10px;margin-top:6px"><button class="btn" id="sInfo">Anleitung</button><button class="btn" data-privacy style="margin-right:auto">Datenschutz</button><button class="btn" id="sReset">Standardwerte</button><button class="btn pri" data-close>Fertig</button></div>
       </div>
     </div>`;
   const apply=()=>{saveSettings();renderAll();};
@@ -734,13 +742,44 @@ function openIntro(after){
       <p class="note">Die Ampel ist eine Orientierungshilfe, keine Garantie. Vor Ort selbst prüfen.</p>
       <h4>Datenschutz</h4>
       <p class="note">Keine Anmeldung, kein Tracking, keine Cookies, kein eigener Server. Deine Einstellungen (Ort, Grenzwerte) werden nur auf deinem Gerät im Browser gespeichert und nirgendwohin übertragen.
-      Um die Daten anzuzeigen, fragt dein Browser direkt bei diesen Diensten an – sie sehen dabei, wie bei jedem Webseitenaufruf, deine IP-Adresse: <b>Open-Meteo</b> (Wetter, mit den Koordinaten des gewählten Orts), <b>Deutscher Wetterdienst</b> (Radar), <b>OpenFreeMap</b> (Karte) und – nur bei der Ortssuche – <b>Photon/komoot</b>. Die Seite selbst wird über <b>GitHub Pages</b> ausgeliefert.</p>
+      Um die Daten anzuzeigen, fragt dein Browser direkt bei diesen Diensten an – sie sehen dabei, wie bei jedem Webseitenaufruf, deine IP-Adresse: <b>Open-Meteo</b> (Wetter, mit den Koordinaten des gewählten Orts), <b>Deutscher Wetterdienst</b> (Radar), <b>OpenFreeMap</b> (Karte) und – nur bei der Ortssuche – <b>Photon/komoot</b>. Die Seite selbst wird über <b>GitHub Pages</b> ausgeliefert. <button class="linkbtn" data-privacy>Vollständige Datenschutzhinweise</button></p>
       <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn pri" id="introOk">Verstanden</button></div>
     </div>`;
   $('#introOk').onclick=()=>{try{localStorage.setItem('ws-intro','1');}catch(e){}hideOverlay();setTimeout(()=>{$('#sheet').classList.remove('narrow');if(after)after();},260);};
   showOverlay();
 }
 
+
+/* ---------- Über dieses Projekt & Datenschutzhinweise ---------- */
+function openPrivacy(focusAbout){
+  $('#sheet').classList.add('narrow');
+  $('#sheet').innerHTML=`
+    <div class="sheetHead"><h3>${focusAbout?'Über dieses Projekt':'Datenschutz &amp; Hinweise'}</h3><button class="xbtn" data-close>✕</button></div>
+    <div class="intro legal">
+      <h4>Über dieses Projekt</h4>
+      <p>„Schweißwetter“ ist ein rein privates, nicht-kommerzielles Freizeit- und Coding-Projekt ohne Gewinnerzielungsabsicht. Über diese Seite werden weder Waren noch kostenpflichtige Dienstleistungen angeboten.</p>
+      <p>Die Anzeigen beruhen auf frei verfügbaren Wettermodellen und Radardaten und sind eine unverbindliche Orientierungshilfe. Für Richtigkeit, Vollständigkeit und Aktualität wird keine Gewähr übernommen; Entscheidungen vor Ort (z. B. zu Arbeitssicherheit und Schweißqualität) triffst du selbst.</p>
+      <h4>Datenschutzhinweise</h4>
+      <ul>
+        <li><b>Keine eigene Datenspeicherung.</b> Die Seite ist eine rein statische Website ohne eigenen Server. Der Betreiber erhebt, speichert oder analysiert selbst keine personenbezogenen Daten – kein Tracking, keine Analyse- oder Werbedienste, keine Cookies, keine Nutzerkonten.</li>
+        <li><b>Hosting über GitHub Pages.</b> Beim Aufruf verarbeitet der Hosting-Anbieter GitHub, Inc. (USA) technisch notwendige Verbindungsdaten – insbesondere IP-Adresse, Browsertyp und Zeitpunkt des Zugriffs –, um die Seite auszuliefern und die Systemsicherheit zu gewährleisten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer sicheren und funktionsfähigen Bereitstellung). Für Übermittlungen in die USA stützt sich GitHub auf das EU-U.S. Data Privacy Framework und Standardvertragsklauseln. Details: <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a>.</li>
+        <li><b>Abruf von Wetter-, Radar- und Kartendaten.</b> Zur Anzeige baut dein Browser direkte Verbindungen zu diesen Diensten auf; dabei wird deine IP-Adresse an deren Server übermittelt, damit die Daten an dein Gerät gesendet werden können:
+          <br>– <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a> (Wettervorhersagen; übermittelt werden die Koordinaten des von dir gewählten Orts),
+          <br>– <a href="https://www.dwd.de" target="_blank" rel="noopener">Deutscher Wetterdienst</a> (Regenradar; übermittelt wird ein Kartenausschnitt rund um den gewählten Ort),
+          <br>– <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (Kartendarstellung).
+          <br>Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Darstellung der angefragten Wetterinformationen).</li>
+        <li><b>Ortssuche.</b> Nur wenn du in den Einstellungen nach einem Ort suchst, wird dein Suchbegriff (z. B. eine Postleitzahl) zusammen mit deiner IP-Adresse an den Suchdienst <a href="https://photon.komoot.io" target="_blank" rel="noopener">Photon (komoot)</a> gesendet.</li>
+        <li><b>Keine Standortabfrage.</b> Die Seite fragt den Standort deines Geräts (GPS/Ortung) nicht ab. Es gibt keinen voreingestellten Ort – du wählst ihn selbst.</li>
+        <li><b>Lokale Einstellungen.</b> Gewählter Ort, Grenzwerte, Arbeitszeit, Kartenzoom und ob du diesen Hinweis gelesen hast, werden ausschließlich lokal im Speicher deines Browsers (Local Storage) abgelegt und nicht übertragen. Das ist für die von dir gewünschte Funktion unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Du kannst sie jederzeit löschen: <button class="linkbtn" id="clearLocal">Lokale Einstellungen jetzt löschen</button> oder über die Websitedaten deines Browsers.</li>
+        <li><b>Keine Einbindung weiterer Dritter.</b> Schriftarten und die Kartenbibliothek werden vom selben Server wie die Seite geladen (keine Google Fonts, keine externen CDNs).</li>
+        <li><b>Deine Rechte.</b> Dir stehen nach der DSGVO insbesondere Rechte auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Widerspruch sowie ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu. Da über diese Seite selbst keine Daten gespeichert werden, betreffen solche Anliegen in der Regel die oben genannten Dienste; wende dich dafür direkt an diese.</li>
+      </ul>
+      <p class="note">Stand: ${MON[10]} 2026</p>
+    </div>`;
+  const c=$('#clearLocal');
+  if(c)c.onclick=()=>{try{localStorage.removeItem('ws-settings');localStorage.removeItem('ws-intro');}catch(e){}c.outerHTML='<b style="color:var(--g)">Gelöscht – die Seite wird neu geladen …</b>';setTimeout(()=>location.reload(),1200);};
+  showOverlay();
+}
 /* ---------- Navigation & Wischen ---------- */
 let page=0;
 function setPage(p){
@@ -763,7 +802,7 @@ const lon2n=lon=>(lon+180)/360;
 const lat2n=lat=>{const r=lat*Math.PI/180;return(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2;};
 const RAD={built:false,frames:[],ready:[],pos:0,playing:true,hold:0,raf:0,last:0,shown:[],drag:false,lastLabel:''};
 const MW=1280,MH=656;
-function pxPerKm(z){return TS*2**z/(40075.017*Math.cos(S.loc.lat*Math.PI/180));}
+function pxPerKm(z){return TS*2**z/(40075.017*Math.cos((S.loc?S.loc.lat:51)*Math.PI/180));}
 function drawRings(){
   const z=S.zoom,k=pxPerKm(z),cx=MW/2,cy=MH/2;let s='';
   [10,25,50,100].forEach(km=>{const r=km*k;if(r>MW*.75)return;
@@ -1112,23 +1151,45 @@ document.addEventListener('click',e=>{
   if(t.closest('[data-close]')||t.id==='overlay'){hideOverlay();return;}
   const tab=t.closest('#tabs button');if(tab){setPage(+tab.dataset.p);return;}
   const card=t.closest('.ac,.vd,.wk');if(card){openDetail(+card.dataset.di);return;}
+  if(t.closest('[data-privacy]')){openPrivacy(false);return;}
+  if(t.closest('[data-about]')){openPrivacy(true);return;}
   if(t.closest('#gear')||t.closest('#locBtn')){openSettings();return;}
 });
 
+let ONLINE=null;
 async function refresh(rebuildRadar){
-  try{D=await loadLive();}
-  catch(e){if(!D||D.mode==='demo')D=makeDemo();}
+  if(S.loc){
+    try{D=await loadLive();ONLINE=true;}
+    catch(e){if(!D||D.mode==='demo')D=makeDemo();}
+  }
+  if(!D)return;
   renderAll();
+  const L=$('#loading');if(L)L.remove();
   if(rebuildRadar||page===2){RAD.built=false;if(page===2)radarStart();}
+}
+/* Ohne gewählten Ort: Startbildschirm statt Wetterdaten (kein voreingestellter Ort) */
+function showNoLoc(){
+  const L=$('#loading');if(!L)return;
+  L.innerHTML=`<div style="text-align:center;max-width:420px;padding:0 24px">
+    <div style="font-size:26px;font-weight:700;color:var(--tx);margin-bottom:8px">Willkommen bei Schweißwetter</div>
+    <div style="font-size:16px;line-height:1.5;margin-bottom:18px">Wähle zuerst den Ort, für den das Wetter bewertet werden soll – per Postleitzahl oder Ortsname.</div>
+    <button class="btn pri" id="noLocBtn" style="padding:0 28px">Ort wählen</button>
+    <div style="margin-top:16px"><button class="linkbtn" data-privacy>Datenschutz</button> · <button class="linkbtn" data-about>Über dieses Projekt</button></div></div>`;
+  $('#noLocBtn').onclick=openSettings;
 }
 (async function init(){
   fit();tick();setInterval(tick,1000);setPlayIcon();
-  await refresh(false);
-  $('#loading').remove();
+  if(S.loc)await refresh(false);
+  else{
+    // Nur prüfen, ob Wetterdaten erreichbar sind (ohne Ortsbezug) – sonst Demo-Modus
+    ONLINE=await getJSON('https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0&current=temperature_2m',6000).then(()=>true).catch(()=>false);
+    if(!ONLINE){D=makeDemo();renderAll();const L=$('#loading');if(L)L.remove();}
+    else showNoLoc();
+  }
   if(location.hash==='#ampel')setPage(1);else if(location.hash==='#radar')setPage(2);
-  const needLoc=D.mode==='live'&&!S.loc.set;
+  const needLoc=!S.loc&&ONLINE;
   if(!introSeen())openIntro(needLoc?openSettings:null);else if(needLoc)openSettings();
-  setInterval(()=>{if(D&&D.mode==='live')refresh(false);else renderAll();},15*60e3);
+  setInterval(()=>{if(D&&D.mode==='live')refresh(false);else if(D)renderAll();},15*60e3);
   setInterval(()=>{if(D)renderOverview();},60e3);
   setInterval(()=>{if(D&&D.mode==='live'&&MAP)loadRadarFrames();},10*60e3);
 })();
